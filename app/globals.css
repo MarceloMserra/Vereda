@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-vereda-bg text-gray-100 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-vereda-card;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gold-600 rounded-full;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-vereda-card border border-vereda-border rounded-2xl p-5;
+  }
+
+  .btn-primary {
+    @apply bg-gold-500 hover:bg-gold-400 text-gray-900 font-semibold
+           px-5 py-2.5 rounded-xl transition-all duration-200
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply text-gold-400 hover:text-gold-300 hover:bg-white/5
+           px-4 py-2 rounded-xl transition-all duration-200
+           active:scale-95;
+  }
+
+  .tag {
+    @apply text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .tag-at {
+    @apply tag bg-blue-900/40 text-blue-300 border border-blue-700/40;
+  }
+
+  .tag-nt {
+    @apply tag bg-purple-900/40 text-purple-300 border border-purple-700/40;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-vereda-border rounded-lg;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(22, 27, 34, 0.8);
+  }
+}

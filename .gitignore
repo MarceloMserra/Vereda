@@ -1,0 +1,8 @@
+.env
+.next/
+node_modules/
+*.db
+*.db-journal
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
