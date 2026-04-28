@@ -1,7 +1,16 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+const OLLAMA_URL = process.env.OLLAMA_URL || 'https://ollama.cpisf.com.br'
+const OLLAMA_MODEL = 'llama3.1:8b'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+async function ollamaGenerate(prompt: string): Promise<string> {
+  const res = await fetch(`${OLLAMA_URL}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: OLLAMA_MODEL, prompt, stream: false }),
+  })
+  if (!res.ok) throw new Error(`Ollama error: ${res.status}`)
+  const data = await res.json()
+  return data.response as string
+}
 
 export type ReflexaoIA = {
   contexto: string
@@ -27,9 +36,7 @@ Responda APENAS em JSON válido, sem markdown, sem blocos de código, exatamente
   "versiculo": "Um versículo marcante dessa passagem, com a referência (ex: João 3:16)"
 }`
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim()
-
+  const text = (await ollamaGenerate(prompt)).trim()
   const json = text.startsWith('{') ? text : text.replace(/```json\n?|\n?```/g, '').trim()
   return JSON.parse(json) as ReflexaoIA
 }
@@ -46,6 +53,5 @@ O leitor está lendo ${livro} ${capitulos} e fez esta pergunta:
 
 Responda de forma clara, breve (máximo 4 parágrafos) e pastoral, em português brasileiro. Conecte a resposta com a fé cristã evangélica.`
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  return ollamaGenerate(prompt)
 }
