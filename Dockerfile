@@ -11,6 +11,12 @@ RUN npm ci
 # Código fonte
 COPY . .
 
+# Variáveis necessárias no build
+ARG DATABASE_URL=file:/app/data/vereda.db
+ARG OLLAMA_URL=https://ollama.cpisf.com.br
+ENV DATABASE_URL=$DATABASE_URL
+ENV OLLAMA_URL=$OLLAMA_URL
+
 # Gerar Prisma e build
 RUN npx prisma generate
 RUN npm run build
