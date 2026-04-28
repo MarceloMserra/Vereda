@@ -28,4 +28,4 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
 
-CMD sh -c "npx prisma db push --skip-generate 2>/dev/null; npm start"
+CMD sh -c "npx prisma db push --skip-generate --accept-data-loss; npm start"
