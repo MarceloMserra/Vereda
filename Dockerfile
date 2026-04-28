@@ -7,6 +7,8 @@ WORKDIR /app
 # Dependências
 COPY package.json package-lock.json* ./
 RUN npm ci
+# Instala binário musl do SWC para Alpine Linux (não incluído no lock gerado no Windows)
+RUN npm install --no-save @next/swc-linux-x64-musl
 
 # Código fonte
 COPY . .
