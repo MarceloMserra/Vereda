@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getUsuarioAtual } from '@/lib/auth'
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const usuarioId = searchParams.get('usuarioId')
+export async function GET() {
+  const usuario = await getUsuarioAtual()
+  if (!usuario) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  if (!usuarioId) {
-    return NextResponse.json({ error: 'usuarioId obrigatório' }, { status: 400 })
-  }
+  const { id: usuarioId } = usuario
 
   const progressos = await prisma.progresso.findMany({
     where: { usuarioId },
@@ -50,22 +49,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { usuarioId, dia } = await request.json()
+  const usuario = await getUsuarioAtual()
+  if (!usuario) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  if (!usuarioId || !dia) {
-    return NextResponse.json({ error: 'usuarioId e dia obrigatórios' }, { status: 400 })
-  }
-
-  // Garantir que o usuário existe
-  await prisma.usuario.upsert({
-    where: { id: usuarioId },
-    create: { id: usuarioId },
-    update: {},
-  })
+  const { dia } = await request.json()
+  if (!dia) return NextResponse.json({ error: 'dia obrigatório' }, { status: 400 })
 
   const progresso = await prisma.progresso.upsert({
-    where: { usuarioId_dia: { usuarioId, dia } },
-    create: { usuarioId, dia },
+    where: { usuarioId_dia: { usuarioId: usuario.id, dia } },
+    create: { usuarioId: usuario.id, dia },
     update: { lidoEm: new Date() },
   })
 
@@ -73,15 +65,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { usuarioId, dia } = await request.json()
+  const usuario = await getUsuarioAtual()
+  if (!usuario) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-  if (!usuarioId || !dia) {
-    return NextResponse.json({ error: 'usuarioId e dia obrigatórios' }, { status: 400 })
-  }
+  const { dia } = await request.json()
+  if (!dia) return NextResponse.json({ error: 'dia obrigatório' }, { status: 400 })
 
-  await prisma.progresso.deleteMany({
-    where: { usuarioId, dia },
-  })
-
+  await prisma.progresso.deleteMany({ where: { usuarioId: usuario.id, dia } })
   return NextResponse.json({ ok: true })
 }

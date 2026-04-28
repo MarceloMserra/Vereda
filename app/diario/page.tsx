@@ -22,7 +22,7 @@ export default function PaginaDiario() {
     if (!usuarioId) return
     setCarregando(true)
     try {
-      const res = await fetch(`/api/diario?usuarioId=${usuarioId}`)
+      const res = await fetch('/api/diario')
       const data = await res.json()
       setEntradas(data ?? [])
     } catch {

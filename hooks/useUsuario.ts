@@ -2,21 +2,23 @@
 
 import { useEffect, useState } from 'react'
 
-function gerarId(): string {
-  return crypto.randomUUID()
-}
+export type UsuarioAtual = { id: string; nome: string; email: string }
 
-export function useUsuario(): string | null {
-  const [usuarioId, setUsuarioId] = useState<string | null>(null)
+export function useUsuario(): UsuarioAtual | null {
+  const [usuario, setUsuario] = useState<UsuarioAtual | null>(null)
 
   useEffect(() => {
-    let id = localStorage.getItem('vereda_usuario_id')
-    if (!id) {
-      id = gerarId()
-      localStorage.setItem('vereda_usuario_id', id)
-    }
-    setUsuarioId(id)
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) {
+          window.location.href = '/login'
+          return
+        }
+        setUsuario(data)
+      })
+      .catch(() => { window.location.href = '/login' })
   }, [])
 
-  return usuarioId
+  return usuario
 }

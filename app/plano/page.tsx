@@ -14,7 +14,7 @@ export default function PaginaPlano() {
   const carregarProgresso = useCallback(async () => {
     if (!usuarioId) return
     try {
-      const res = await fetch(`/api/progresso?usuarioId=${usuarioId}`)
+      const res = await fetch('/api/progresso')
       const data = await res.json()
       setDiasLidos(new Set(data.diasLidos ?? []))
     } catch {

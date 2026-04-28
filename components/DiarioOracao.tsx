@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react'
 
 interface DiarioOracaoProps {
   dia: number
-  usuarioId: string
 }
 
-export default function DiarioOracao({ dia, usuarioId }: DiarioOracaoProps) {
+export default function DiarioOracao({ dia }: DiarioOracaoProps) {
   const [texto, setTexto] = useState('')
   const [salvo, setSalvo] = useState(false)
   const [salvando, setSalvando] = useState(false)
@@ -15,13 +14,11 @@ export default function DiarioOracao({ dia, usuarioId }: DiarioOracaoProps) {
 
   useEffect(() => {
     if (!expandido) return
-    fetch(`/api/diario?usuarioId=${usuarioId}&dia=${dia}`)
+    fetch(`/api/diario?dia=${dia}`)
       .then((r) => r.json())
-      .then((data) => {
-        if (data?.texto) setTexto(data.texto)
-      })
+      .then((data) => { if (data?.texto) setTexto(data.texto) })
       .catch(() => {})
-  }, [expandido, dia, usuarioId])
+  }, [expandido, dia])
 
   async function salvar() {
     if (!texto.trim()) return
@@ -30,7 +27,7 @@ export default function DiarioOracao({ dia, usuarioId }: DiarioOracaoProps) {
       await fetch('/api/diario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuarioId, dia, texto }),
+        body: JSON.stringify({ dia, texto }),
       })
       setSalvo(true)
       setTimeout(() => setSalvo(false), 2000)

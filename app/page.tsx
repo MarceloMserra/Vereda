@@ -11,7 +11,7 @@ import TextoBiblico from '@/components/TextoBiblico'
 import Navegacao from '@/components/Navegacao'
 
 export default function PaginaHoje() {
-  const usuarioId = useUsuario()
+  const usuario = useUsuario()
 
   const [diasLidos, setDiasLidos] = useState<number[]>([])
   const [streak, setStreak] = useState(0)
@@ -27,14 +27,13 @@ export default function PaginaHoje() {
   const plano = getDiaPlano(diaAtual)
 
   const carregarProgresso = useCallback(async () => {
-    if (!usuarioId) return
+    if (!usuario) return
     try {
-      const res = await fetch(`/api/progresso?usuarioId=${usuarioId}`)
+      const res = await fetch('/api/progresso')
       const data = await res.json()
       setDiasLidos(data.diasLidos ?? [])
       setStreak(data.streak ?? 0)
 
-      // Determinar próximo dia a ler
       const proximo = (data.diasLidos as number[]).length + 1
       const dia = Math.min(proximo, totalDias)
       setDiaAtual(dia)
@@ -42,7 +41,7 @@ export default function PaginaHoje() {
     } catch {
       // silencioso
     }
-  }, [usuarioId, totalDias])
+  }, [usuario, totalDias])
 
   useEffect(() => {
     carregarProgresso()
@@ -63,13 +62,13 @@ export default function PaginaHoje() {
   }
 
   async function marcarComoLido() {
-    if (!usuarioId || lido) return
+    if (!usuario || lido) return
     setMarcando(true)
     try {
       await fetch('/api/progresso', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuarioId, dia: diaAtual }),
+        body: JSON.stringify({ dia: diaAtual }),
       })
       setLido(true)
       setStreak((s) => s + 1)
@@ -81,7 +80,12 @@ export default function PaginaHoje() {
     }
   }
 
-  if (!usuarioId || !plano) {
+  async function sair() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    window.location.href = '/login'
+  }
+
+  if (!usuario || !plano) {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
@@ -97,11 +101,20 @@ export default function PaginaHoje() {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-gradient">Vereda</h1>
-            <p className="text-xs text-vereda-muted">Dia {diaAtual} de {totalDias}</p>
+            <p className="text-xs text-vereda-muted">Olá, {usuario.nome} · Dia {diaAtual} de {totalDias}</p>
           </div>
-          <div className="flex items-center gap-1.5 bg-gold-500/10 border border-gold-500/30 rounded-xl px-3 py-1.5">
-            <span className="text-base">🔥</span>
-            <span className="text-sm font-bold text-gold-400">{streak}</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-gold-500/10 border border-gold-500/30 rounded-xl px-3 py-1.5">
+              <span className="text-base">🔥</span>
+              <span className="text-sm font-bold text-gold-400">{streak}</span>
+            </div>
+            <button
+              onClick={sair}
+              title="Sair"
+              className="w-8 h-8 flex items-center justify-center rounded-xl text-vereda-muted hover:text-gray-300 hover:bg-vereda-card transition-all"
+            >
+              ↩
+            </button>
           </div>
         </header>
 
@@ -153,7 +166,7 @@ export default function PaginaHoje() {
         />
 
         {/* Diário */}
-        <DiarioOracao dia={diaAtual} usuarioId={usuarioId} />
+        <DiarioOracao dia={diaAtual} />
 
       </div>
 

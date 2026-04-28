@@ -8,10 +8,22 @@ datasource db {
 }
 
 model Usuario {
-  id         String     @id @default(cuid())
-  criadoEm   DateTime   @default(now())
+  id        String     @id @default(cuid())
+  email     String?    @unique
+  nome      String?
+  senha     String?
+  criadoEm  DateTime   @default(now())
   progressos Progresso[]
   entradas   Diario[]
+  sessoes    Sessao[]
+}
+
+model Sessao {
+  id        String   @id @default(cuid())
+  usuarioId String
+  token     String   @unique @default(cuid())
+  expiraEm  DateTime
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 }
 
 model Progresso {
